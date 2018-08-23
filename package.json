@@ -1,0 +1,22 @@
+{
+  "name": "dirs-match",
+  "version": "0.0.0",
+  "main": "index.js",
+  "repository": "nju33/dirs-match",
+  "author": "nju33 <nju33.ki@gmail.com>",
+  "license": "MIT",
+  "bin": {
+    "dirs-match": "cli.js"
+  },
+  "scripts": {
+    "test": ":"
+  },
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "glob": "^7.1.2",
+    "glob-promise": "^3.4.0",
+    "log-symbols": "^2.2.0",
+    "signale": "^1.2.1",
+    "yargs": "^12.0.1"
+  }
+}
