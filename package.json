@@ -8,6 +8,10 @@
   "bin": {
     "dirs-match": "cli.js"
   },
+  "files": [
+    "cli.js",
+    "index.js"
+  ],
   "scripts": {
     "version.show": "cat package.json | grep '\"version\"' | awk '{print $2}' | cut -d'\"' -f2",
     "docker.build": "docker build . -t nju33/dirs-match:`yarn run --silent version.show`",
