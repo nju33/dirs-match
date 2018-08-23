@@ -18,25 +18,25 @@ const signale = new Signale({
     matches: {
       badge: logSymbols.success,
       color: 'green',
-      label: 'matches'
+      // label: '    matched at'
     },
     notMatches: {
       badge: logSymbols.error,
       color: 'red',
-      label: 'not matches'
+      // label: 'did not matched at'
     },
     shaBase: {
       badge: ' ',
       color: 'gray',
-      label: '       base',
+      label: '  base'
     },
     shaTarget: {
       badge: ' ',
       color: 'gray',
-      label: '     target',
-    },
+      label: 'target'
+    }
   }
-})
+});
 
 const stat = promisify(fs.stat);
 const readFile = promisify(fs.readFile);
@@ -57,20 +57,25 @@ const baseDirname = path.resolve(process.cwd(), argv.baseDir);
 const targetDirname = path.resolve(process.cwd(), argv.targetDir);
 
 const ignoreDirs = async names => {
-  return (await Promise.all(names.map(async name => {
-    const stats = await stat(name);
-    if (stats.isDirectory()) {
-      return null;
-    }
+  return (await Promise.all(
+    names.map(async name => {
+      const stats = await stat(name);
+      if (stats.isDirectory()) {
+        return null;
+      }
 
-    return name;
-  }))).filter(v => v);
-}
+      return name;
+    })
+  )).filter(v => v);
+};
 
 const getCrypto = async absoluteFilename => {
   const buf = await readFile(absoluteFilename);
-  return crypto.createHash('sha1').update(buf).digest('hex');
-}
+  return crypto
+    .createHash('sha1')
+    .update(buf)
+    .digest('hex');
+};
 
 const pathExists = async absoluteFilename => {
   try {
@@ -79,23 +84,27 @@ const pathExists = async absoluteFilename => {
   } catch (_) {
     return false;
   }
-}
+};
 
 const getRelativePathAtBase = filename => {
   return filename.replace(baseDirname, '').slice(1);
-}
+};
 
 (async () => {
-  await Promise.all([
-    stat(baseDirname),
-    stat(targetDirname),
-  ]);
+  await Promise.all([stat(baseDirname), stat(targetDirname)]);
 
-  const absoluteFilenamesAtBase = await glob(`${baseDirname}/**/*`).then(ignoreDirs);
+  const absoluteFilenamesAtBase = await glob(`${baseDirname}/**/*`).then(
+    ignoreDirs
+  );
 
   for (const absoluteFilenameAtBase of absoluteFilenamesAtBase) {
-    const relativeFilenameAtBase = getRelativePathAtBase(absoluteFilenameAtBase);
-    const absoluteFilenameAtTarget = path.resolve(targetDirname, relativeFilenameAtBase);
+    const relativeFilenameAtBase = getRelativePathAtBase(
+      absoluteFilenameAtBase
+    );
+    const absoluteFilenameAtTarget = path.resolve(
+      targetDirname,
+      relativeFilenameAtBase
+    );
     const shaOfBase = await getCrypto(absoluteFilenameAtBase);
     let shaOfTarget;
     if (await pathExists(absoluteFilenameAtTarget)) {
@@ -103,13 +112,13 @@ const getRelativePathAtBase = filename => {
     }
 
     if (shaOfBase === shaOfTarget) {
-      signale.matches(`${chalk.underline(relativeFilenameAtBase)}`);
+      signale.matches(chalk.underline(relativeFilenameAtBase));
     } else {
-      signale.notMatches(`${chalk.underline(relativeFilenameAtBase)} don\'t matches`)
+      signale.notMatches(chalk.underline(relativeFilenameAtBase));
       signale.shaBase(chalk.gray(shaOfBase));
       signale.shaTarget(chalk.gray(shaOfTarget));
     }
   }
 })().catch(err => {
   console.error(err);
-})
+});
